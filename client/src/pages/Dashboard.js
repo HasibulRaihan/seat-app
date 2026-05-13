@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { getMyResults } from '../services/api';
-
+// Add this at the top of Dashboard.js after imports
+const isMobile = window.innerWidth <= 768;
 export default function Dashboard() {
   const navigate = useNavigate();
   const user = JSON.parse(localStorage.getItem('user') || '{}');
@@ -131,36 +132,58 @@ export default function Dashboard() {
 }
 
 const styles = {
-  page: { display:'flex', minHeight:'100vh', background:'#f0f4f8' },
-  sidebar: { width:'200px', background:'#0c447c', padding:'24px 16px', display:'flex', flexDirection:'column', gap:'8px', position:'fixed', height:'100vh' },
-  logo: { color:'#fff', fontSize:'18px', fontWeight:'600', marginBottom:'24px' },
-  nav: { display:'flex', flexDirection:'column', gap:'4px', flex:1 },
-  navActive: { padding:'10px 12px', background:'#185fa5', borderRadius:'8px', color:'#fff', fontSize:'13px', fontWeight:'500', cursor:'pointer' },
-  navItem: { padding:'10px 12px', color:'#b5d4f4', fontSize:'13px', cursor:'pointer', borderRadius:'8px' },
-  logoutBtn: { padding:'10px 12px', color:'#b5d4f4', fontSize:'13px', cursor:'pointer' },
-  main: { marginLeft:'200px', padding:'32px', flex:1 },
-  header: { display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:'24px' },
-  welcome: { fontSize:'22px', fontWeight:'600', margin:'0 0 4px', color:'#1e3a5f' },
+  page: { display:'flex', minHeight:'100vh', background:'#f0f4f8', flexDirection: window.innerWidth <= 768 ? 'column' : 'row' },
+  sidebar: {
+    width: window.innerWidth <= 768 ? '100%' : '200px',
+    background:'#0c447c',
+    padding: window.innerWidth <= 768 ? '12px 16px' : '24px 16px',
+    display:'flex',
+    flexDirection: window.innerWidth <= 768 ? 'row' : 'column',
+    gap:'8px',
+    position: window.innerWidth <= 768 ? 'relative' : 'fixed',
+    height: window.innerWidth <= 768 ? 'auto' : '100vh',
+    alignItems: window.innerWidth <= 768 ? 'center' : 'stretch',
+    flexWrap: 'wrap',
+    zIndex: 100,
+  },
+  logo: { color:'#fff', fontSize:'16px', fontWeight:'600', marginBottom: window.innerWidth <= 768 ? '0' : '24px' },
+  nav: {
+    display:'flex',
+    flexDirection: window.innerWidth <= 768 ? 'row' : 'column',
+    gap:'4px',
+    flex:1,
+    flexWrap: 'wrap',
+  },
+  navActive: { padding:'8px 12px', background:'#185fa5', borderRadius:'8px', color:'#fff', fontSize:'12px', fontWeight:'500', cursor:'pointer' },
+  navItem: { padding:'8px 12px', color:'#b5d4f4', fontSize:'12px', cursor:'pointer', borderRadius:'8px' },
+  logoutBtn: { padding:'8px 12px', color:'#b5d4f4', fontSize:'12px', cursor:'pointer' },
+  main: {
+    marginLeft: window.innerWidth <= 768 ? '0' : '200px',
+    padding: window.innerWidth <= 768 ? '16px' : '32px',
+    flex:1,
+  },
+  header: { display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:'24px', flexWrap:'wrap', gap:'12px' },
+  welcome: { fontSize: window.innerWidth <= 768 ? '18px' : '22px', fontWeight:'600', margin:'0 0 4px', color:'#1e3a5f' },
   welcomeSub: { fontSize:'13px', color:'#666', margin:0 },
-  avatar: { width:'40px', height:'40px', background:'#185fa5', borderRadius:'50%', display:'flex', alignItems:'center', justifyContent:'center', color:'#fff', fontWeight:'600', fontSize:'14px' },
-  statsGrid: { display:'grid', gridTemplateColumns:'repeat(4,1fr)', gap:'16px', marginBottom:'20px' },
+  avatar: { width:'40px', height:'40px', background:'#185fa5', borderRadius:'50%', display:'flex', alignItems:'center', justifyContent:'center', color:'#fff', fontWeight:'600', fontSize:'14px', flexShrink:0 },
+  statsGrid: { display:'grid', gridTemplateColumns: window.innerWidth <= 480 ? 'repeat(2,1fr)' : 'repeat(4,1fr)', gap:'12px', marginBottom:'20px' },
   statCard: { background:'#fff', borderRadius:'12px', padding:'16px', boxShadow:'0 1px 4px rgba(0,0,0,0.08)' },
-  statLabel: { fontSize:'12px', color:'#666', margin:'0 0 6px' },
-  statValue: { fontSize:'28px', fontWeight:'600', margin:0, color:'#1e3a5f' },
+  statLabel: { fontSize:'11px', color:'#666', margin:'0 0 6px' },
+  statValue: { fontSize: window.innerWidth <= 480 ? '22px' : '28px', fontWeight:'600', margin:0, color:'#1e3a5f' },
   progressCard: { background:'#fff', borderRadius:'12px', padding:'16px', marginBottom:'24px', boxShadow:'0 1px 4px rgba(0,0,0,0.08)' },
-  progressHeader: { display:'flex', justifyContent:'space-between', marginBottom:'8px' },
+  progressHeader: { display:'flex', justifyContent:'space-between', marginBottom:'8px', flexWrap:'wrap', gap:'4px' },
   progressTitle: { fontSize:'14px', fontWeight:'500', color:'#1e3a5f' },
   progressCount: { fontSize:'13px', color:'#666' },
   progressBar: { background:'#e5e7eb', borderRadius:'4px', height:'10px' },
   progressFill: { background:'#185fa5', height:'10px', borderRadius:'4px', transition:'width 0.5s' },
   sectionTitle: { fontSize:'16px', fontWeight:'600', color:'#1e3a5f', margin:'0 0 16px' },
-  modulesGrid: { display:'grid', gridTemplateColumns:'repeat(3,1fr)', gap:'16px', marginBottom:'32px' },
+  modulesGrid: { display:'grid', gridTemplateColumns: window.innerWidth <= 600 ? '1fr' : window.innerWidth <= 900 ? 'repeat(2,1fr)' : 'repeat(3,1fr)', gap:'16px', marginBottom:'32px' },
   moduleCard: { background:'#fff', borderRadius:'12px', padding:'20px', boxShadow:'0 1px 4px rgba(0,0,0,0.08)', cursor:'pointer' },
   moduleTag: { fontSize:'11px', background:'#dbeafe', color:'#1d4ed8', padding:'2px 8px', borderRadius:'4px', fontWeight:'500' },
   moduleName: { fontSize:'15px', fontWeight:'600', margin:'10px 0 4px', color:'#1e3a5f' },
   moduleSub: { fontSize:'12px', color:'#666', margin:'0 0 12px' },
   startBtn: { fontSize:'13px', color:'#185fa5', fontWeight:'500' },
-  resultsTable: { background:'#fff', borderRadius:'12px', overflow:'hidden', boxShadow:'0 1px 4px rgba(0,0,0,0.08)' },
-  tableHeader: { display:'grid', gridTemplateColumns:'2fr 1fr 1fr 1fr', padding:'12px 16px', background:'#f8fafc', fontSize:'12px', fontWeight:'600', color:'#666' },
-  tableRow: { display:'grid', gridTemplateColumns:'2fr 1fr 1fr 1fr', padding:'12px 16px', fontSize:'13px', borderTop:'1px solid #f0f0f0', color:'#333' }
+  resultsTable: { background:'#fff', borderRadius:'12px', overflow:'hidden', boxShadow:'0 1px 4px rgba(0,0,0,0.08)', overflowX:'auto' },
+  tableHeader: { display:'grid', gridTemplateColumns:'2fr 1fr 1fr 1fr', padding:'12px 16px', background:'#f8fafc', fontSize:'12px', fontWeight:'600', color:'#666', minWidth:'400px' },
+  tableRow: { display:'grid', gridTemplateColumns:'2fr 1fr 1fr 1fr', padding:'12px 16px', fontSize:'13px', borderTop:'1px solid #f0f0f0', color:'#333', minWidth:'400px' },
 };

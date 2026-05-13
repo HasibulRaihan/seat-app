@@ -34,14 +34,12 @@ export default function Login() {
   return (
     <div style={styles.page}>
       <div style={styles.card}>
-        {/* Logo */}
         <div style={styles.logoBox}>
           <span style={styles.logoIcon}>🛡️</span>
         </div>
         <h2 style={styles.title}>SEAT Platform</h2>
         <p style={styles.subtitle}>Social Engineering Awareness Training</p>
 
-        {/* Tabs */}
         <div style={styles.tabs}>
           <span style={styles.activeTab}>Log in</span>
           <Link to="/register" style={styles.inactiveTab}>Register</Link>
@@ -79,7 +77,8 @@ export default function Login() {
           </button>
         </form>
         <p style={styles.link}>
-          Don't have an account? <Link to="/register">Register here</Link>
+          Don't have an account?{' '}
+          <Link to="/register" style={styles.linkText}>Register here</Link>
         </p>
       </div>
     </div>
@@ -87,19 +86,108 @@ export default function Login() {
 }
 
 const styles = {
-  page: { minHeight:'100vh', background:'#f0f4f8', display:'flex', alignItems:'center', justifyContent:'center' },
-  card: { background:'#fff', borderRadius:'16px', padding:'40px', width:'100%', maxWidth:'400px', boxShadow:'0 4px 24px rgba(0,0,0,0.1)' },
-  logoBox: { textAlign:'center', marginBottom:'12px' },
-  logoIcon: { fontSize:'48px' },
-  title: { textAlign:'center', fontSize:'22px', fontWeight:'600', margin:'0 0 4px', color:'#1e3a5f' },
-  subtitle: { textAlign:'center', fontSize:'13px', color:'#666', margin:'0 0 24px' },
-  tabs: { display:'flex', borderRadius:'8px', border:'1px solid #ddd', overflow:'hidden', marginBottom:'20px' },
-  activeTab: { flex:1, padding:'10px', textAlign:'center', background:'#1e3a5f', color:'#fff', fontWeight:'500', fontSize:'14px' },
-  inactiveTab: { flex:1, padding:'10px', textAlign:'center', color:'#666', fontSize:'14px', textDecoration:'none' },
-  error: { background:'#fee2e2', color:'#991b1b', padding:'10px', borderRadius:'8px', marginBottom:'16px', fontSize:'13px' },
-  field: { marginBottom:'16px' },
-  label: { display:'block', fontSize:'13px', fontWeight:'500', color:'#444', marginBottom:'6px' },
-  input: { width:'100%', padding:'10px 12px', border:'1px solid #ddd', borderRadius:'8px', fontSize:'14px', boxSizing:'border-box', outline:'none' },
-  button: { width:'100%', padding:'12px', background:'#1e3a5f', color:'#fff', border:'none', borderRadius:'8px', fontSize:'15px', fontWeight:'500', cursor:'pointer', marginTop:'4px' },
-  link: { textAlign:'center', marginTop:'16px', fontSize:'13px', color:'#666' }
+  page: {
+    minHeight: '100vh',
+    background: 'linear-gradient(135deg, #1e3a5f 0%, #185fa5 100%)',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: '16px',
+  },
+  card: {
+    background: '#fff',
+    borderRadius: '16px',
+    padding: 'clamp(24px, 5vw, 40px)',
+    width: '100%',
+    maxWidth: '420px',
+    boxShadow: '0 8px 32px rgba(0,0,0,0.18)',
+  },
+  logoBox: { textAlign: 'center', marginBottom: '12px' },
+  logoIcon: { fontSize: 'clamp(36px, 8vw, 52px)' },
+  title: {
+    textAlign: 'center',
+    fontSize: 'clamp(18px, 4vw, 24px)',
+    fontWeight: '700',
+    margin: '0 0 4px',
+    color: '#1e3a5f',
+  },
+  subtitle: {
+    textAlign: 'center',
+    fontSize: 'clamp(11px, 2.5vw, 13px)',
+    color: '#888',
+    margin: '0 0 24px',
+  },
+  tabs: {
+    display: 'flex',
+    borderRadius: '10px',
+    border: '1px solid #e0e0e0',
+    overflow: 'hidden',
+    marginBottom: '20px',
+  },
+  activeTab: {
+    flex: 1,
+    padding: 'clamp(8px, 2vw, 11px)',
+    textAlign: 'center',
+    background: '#1e3a5f',
+    color: '#fff',
+    fontWeight: '600',
+    fontSize: 'clamp(12px, 2.5vw, 14px)',
+    cursor: 'default',
+  },
+  inactiveTab: {
+    flex: 1,
+    padding: 'clamp(8px, 2vw, 11px)',
+    textAlign: 'center',
+    color: '#888',
+    fontSize: 'clamp(12px, 2.5vw, 14px)',
+    textDecoration: 'none',
+    background: '#f9f9f9',
+  },
+  error: {
+    background: '#fee2e2',
+    color: '#991b1b',
+    padding: '10px 14px',
+    borderRadius: '8px',
+    marginBottom: '16px',
+    fontSize: '13px',
+    border: '1px solid #fca5a5',
+  },
+  field: { marginBottom: '16px' },
+  label: {
+    display: 'block',
+    fontSize: 'clamp(11px, 2.5vw, 13px)',
+    fontWeight: '600',
+    color: '#444',
+    marginBottom: '6px',
+  },
+  input: {
+    width: '100%',
+    padding: 'clamp(9px, 2vw, 11px) 14px',
+    border: '1.5px solid #e0e0e0',
+    borderRadius: '8px',
+    fontSize: 'clamp(13px, 3vw, 15px)',
+    boxSizing: 'border-box',
+    outline: 'none',
+    transition: 'border-color 0.2s',
+  },
+  button: {
+    width: '100%',
+    padding: 'clamp(11px, 2.5vw, 13px)',
+    background: '#1e3a5f',
+    color: '#fff',
+    border: 'none',
+    borderRadius: '8px',
+    fontSize: 'clamp(14px, 3vw, 16px)',
+    fontWeight: '600',
+    cursor: 'pointer',
+    marginTop: '4px',
+    transition: 'background 0.2s',
+  },
+  link: {
+    textAlign: 'center',
+    marginTop: '18px',
+    fontSize: 'clamp(11px, 2.5vw, 13px)',
+    color: '#888',
+  },
+  linkText: { color: '#185fa5', fontWeight: '600', textDecoration: 'none' },
 };
