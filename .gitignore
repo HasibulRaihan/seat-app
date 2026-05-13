@@ -1,0 +1,9 @@
+node_modules
+.env
+.DS_Store
+build
+*.lock
+*.849C9593-D756-4E56-8D6E-42412F2A707B
+.849C9593-D756-4E56-8D6E-42412F2A707B
+desktop.ini
+Thumbs.db
