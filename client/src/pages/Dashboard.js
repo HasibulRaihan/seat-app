@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { getMyResults } from '../services/api';
 
-export default function Dashboard({ setToken }) {
+export default function Dashboard() {
   const navigate = useNavigate();
   const user = JSON.parse(localStorage.getItem('user') || '{}');
   const [results, setResults] = useState([]);
@@ -12,274 +12,283 @@ export default function Dashboard({ setToken }) {
   }, []);
 
   const logout = () => {
-    localStorage.removeItem('token');
-    localStorage.removeItem('user');
-    setToken(null);
-    navigate('/');
+    localStorage.clear();
+    window.location.href = '/';
   };
 
-  const completedModules = results.length;
+  const completedModules = [...new Set(results.filter(r => r.passed).map(r => r.moduleType))].length;
   const avgScore = results.length > 0
     ? Math.round(results.reduce((a, b) => a + b.score, 0) / results.length)
     : 0;
+  const streak = results.filter(r => r.passed).length;
 
-  const isMobile = window.innerWidth <= 768;
-  const isTablet = window.innerWidth <= 1024;
+  const modules = [
+    {
+      id: 'phishing',
+      title: 'Email Phishing Basics',
+      desc: 'Learn to identify suspicious emails, fake sender addresses, and common phishing techniques.',
+      icon: '⚡',
+      color: '#00C896',
+      bg: '#0D2E1F',
+      level: 'beginner',
+      pts: 100,
+      unlocked: true,
+      route: '/simulation',
+    },
+    {
+      id: 'spear',
+      title: 'Spear Phishing Attacks',
+      desc: 'Advanced targeted phishing attacks using personal information.',
+      icon: '🎯',
+      color: '#8B5CF6',
+      bg: '#1A1040',
+      level: 'intermediate',
+      pts: 150,
+      unlocked: completedModules >= 1,
+      route: '/simulation',
+    },
+    {
+      id: 'social',
+      title: 'Social Engineering Tactics',
+      desc: 'Pretexting, baiting, and manipulation techniques used by attackers.',
+      icon: '🧠',
+      color: '#F59E0B',
+      bg: '#1F1A00',
+      level: 'intermediate',
+      pts: 200,
+      unlocked: completedModules >= 2,
+      route: '/simulation',
+    },
+    {
+      id: 'advanced',
+      title: 'Advanced Threat Detection',
+      desc: 'Identify sophisticated multi-stage attacks and APT techniques.',
+      icon: '🛡️',
+      color: '#EF4444',
+      bg: '#200D0D',
+      level: 'advanced',
+      pts: 300,
+      unlocked: completedModules >= 3,
+      route: '/simulation',
+    },
+  ];
+
+  const levelColor = {
+    beginner: { bg: '#0D3321', color: '#00C896', label: 'beginner' },
+    intermediate: { bg: '#1F1040', color: '#8B5CF6', label: 'intermediate' },
+    advanced: { bg: '#2D0D0D', color: '#EF4444', label: 'advanced' },
+  };
 
   return (
-    <div style={styles.page}>
+    <div style={s.page}>
 
       {/* ── SIDEBAR ── */}
-      <div style={{
-        ...styles.sidebar,
-        width: isMobile ? '100%' : '210px',
-        flexDirection: isMobile ? 'row' : 'column',
-        position: isMobile ? 'relative' : 'fixed',
-        height: isMobile ? 'auto' : '100vh',
-        flexWrap: isMobile ? 'wrap' : 'nowrap',
-        padding: isMobile ? '10px 16px' : '24px 16px',
-      }}>
-        <div style={{
-          ...styles.logo,
-          marginBottom: isMobile ? '0' : '32px',
-          fontSize: isMobile ? '15px' : '18px',
-        }}>
-          🛡️ SEAT
+      <div style={s.sidebar}>
+        <div style={s.logoWrap}>
+          <div style={s.logoIcon}>🛡️</div>
+          <div>
+            <div style={s.logoTitle}>SECURITY</div>
+            <div style={s.logoSub}>TRAINING</div>
+          </div>
         </div>
 
-        <nav style={{
-          ...styles.nav,
-          flexDirection: isMobile ? 'row' : 'column',
-          flexWrap: isMobile ? 'wrap' : 'nowrap',
-          gap: isMobile ? '4px' : '4px',
-        }}>
-          <div style={styles.navActive}>📊 Dashboard</div>
-          <div style={styles.navItem} onClick={() => navigate('/simulation')}>
-            🎯 Training
-          </div>
-          <div style={styles.navItem}>🏆 Leaderboard</div>
-          <div style={styles.navItem}>📈 Reports</div>
-          {user.role === 'admin' && (
-            <div style={styles.navItem} onClick={() => navigate('/admin')}>
-              ⚙️ Admin
+        <nav style={s.nav}>
+          {[
+            { icon: '▦', label: 'Dashboard', path: '/dashboard' },
+            { icon: '◎', label: 'Simulations', path: '/simulation' },
+            { icon: '⬡', label: 'Leaderboard', path: '/leaderboard' },
+            { icon: '▥', label: 'Reports', path: '/reports' },
+          ].map((item) => (
+            <div
+              key={item.path}
+              style={{
+                ...s.navItem,
+                ...(window.location.pathname === item.path ? s.navActive : {}),
+              }}
+              onClick={() => navigate(item.path)}
+            >
+              <span style={s.navIcon}>{item.icon}</span>
+              <span>{item.label}</span>
             </div>
-          )}
+          ))}
         </nav>
 
-        {!isMobile && (
-          <div style={styles.logoutBtn} onClick={logout}>
-            🚪 Log out
-          </div>
-        )}
-        {isMobile && (
-          <div style={styles.logoutBtnMobile} onClick={logout}>
-            🚪
-          </div>
-        )}
-      </div>
-
-      {/* ── MAIN CONTENT ── */}
-      <div style={{
-        ...styles.main,
-        marginLeft: isMobile ? '0' : '210px',
-        padding: isMobile ? '16px' : isTablet ? '24px' : '32px',
-      }}>
-
-        {/* Header */}
-        <div style={styles.header}>
-          <div>
-            <h2 style={{
-              ...styles.welcome,
-              fontSize: isMobile ? '18px' : '22px',
-            }}>
-              Welcome back, {user.firstName}! 👋
-            </h2>
-            <p style={styles.welcomeSub}>
-              Continue your security awareness training
-            </p>
-          </div>
-          <div style={styles.avatar}>
+        <div style={s.userSection}>
+          <div style={s.userAvatar}>
             {user.firstName?.[0]}{user.lastName?.[0]}
           </div>
-        </div>
-
-        {/* Stats */}
-        <div style={{
-          ...styles.statsGrid,
-          gridTemplateColumns: isMobile
-            ? 'repeat(2, 1fr)'
-            : 'repeat(4, 1fr)',
-        }}>
-          <div style={styles.statCard}>
-            <p style={styles.statLabel}>Modules Done</p>
-            <p style={styles.statValue}>{completedModules}</p>
-          </div>
-          <div style={styles.statCard}>
-            <p style={styles.statLabel}>Total Points</p>
-            <p style={{ ...styles.statValue, color: '#1e3a5f' }}>
-              {user.totalPoints || 0}
-            </p>
-          </div>
-          <div style={styles.statCard}>
-            <p style={styles.statLabel}>Avg Score</p>
-            <p style={{ ...styles.statValue, color: '#3b6d11' }}>
-              {avgScore}%
-            </p>
-          </div>
-          <div style={styles.statCard}>
-            <p style={styles.statLabel}>Risk Level</p>
-            <p style={{ ...styles.statValue, color: '#a32d2d' }}>
-              {user.riskScore
-                ? user.riskScore.charAt(0).toUpperCase() + user.riskScore.slice(1)
-                : 'High'}
-            </p>
+          <div style={s.userInfo}>
+            <div style={s.userName}>{user.firstName} {user.lastName}</div>
+            <div style={s.userRole}>{user.role || 'Learner'}</div>
           </div>
         </div>
 
-        {/* Progress bar */}
-        <div style={styles.progressCard}>
-          <div style={styles.progressHeader}>
-            <span style={styles.progressTitle}>Overall progress</span>
-            <span style={styles.progressCount}>
-              {completedModules} / 5 modules
-            </span>
+        <div style={s.signOut} onClick={logout}>
+          <span>↪</span>
+          <span>Sign Out</span>
+        </div>
+      </div>
+
+      {/* ── MAIN ── */}
+      <div style={s.main}>
+
+        {/* Header */}
+        <div style={s.header}>
+          <div>
+            <h1 style={s.welcome}>Welcome back</h1>
+            <p style={s.welcomeSub}>Continue your cybersecurity training journey.</p>
           </div>
-          <div style={styles.progressBar}>
-            <div style={{
-              ...styles.progressFill,
-              width: `${Math.min((completedModules / 5) * 100, 100)}%`,
-            }} />
+          <div style={s.headerRight}>
+            <div style={s.notifBtn}>🔔</div>
+            <div style={s.settingsBtn}>⚙</div>
           </div>
-          <p style={styles.progressPercent}>
-            {Math.round(Math.min((completedModules / 5) * 100, 100))}% complete
-          </p>
+        </div>
+
+        {/* Stats row */}
+        <div style={s.statsRow}>
+          <div style={{ ...s.statCard, background: 'linear-gradient(135deg, #0A2E1F 0%, #0D3D28 100%)', border: '1px solid #1A5C3A' }}>
+            <div style={s.statTop}>
+              <span style={s.statLabel}>MODULES DONE</span>
+              <div style={{ ...s.statIconBox, background: '#0D3D28', border: '1px solid #1A5C3A' }}>
+                <span style={{ color: '#00C896', fontSize: '18px' }}>🛡</span>
+              </div>
+            </div>
+            <div style={s.statValue}>{completedModules}</div>
+            <div style={s.statSub}>of {modules.length}</div>
+          </div>
+
+          <div style={{ ...s.statCard, background: 'linear-gradient(135deg, #1A1040 0%, #220F55 100%)', border: '1px solid #3B1F8C' }}>
+            <div style={s.statTop}>
+              <span style={s.statLabel}>AVG SCORE</span>
+              <div style={{ ...s.statIconBox, background: '#220F55', border: '1px solid #3B1F8C' }}>
+                <span style={{ color: '#8B5CF6', fontSize: '18px' }}>◎</span>
+              </div>
+            </div>
+            <div style={{ ...s.statValue, color: '#8B5CF6' }}>{avgScore}%</div>
+            <div style={s.statSub}>across attempts</div>
+          </div>
+
+          <div style={{ ...s.statCard, background: 'linear-gradient(135deg, #1F1600 0%, #2A1E00 100%)', border: '1px solid #5C3D00' }}>
+            <div style={s.statTop}>
+              <span style={s.statLabel}>TOTAL POINTS</span>
+              <div style={{ ...s.statIconBox, background: '#2A1E00', border: '1px solid #5C3D00' }}>
+                <span style={{ color: '#F59E0B', fontSize: '18px' }}>🏆</span>
+              </div>
+            </div>
+            <div style={{ ...s.statValue, color: '#F59E0B' }}>{user.totalPoints || 0}</div>
+            <div style={s.statSub}>points earned</div>
+          </div>
+
+          <div style={{ ...s.statCard, background: 'linear-gradient(135deg, #200808 0%, #2D0A0A 100%)', border: '1px solid #5C1A1A' }}>
+            <div style={s.statTop}>
+              <span style={s.statLabel}>STREAK</span>
+              <div style={{ ...s.statIconBox, background: '#2D0A0A', border: '1px solid #5C1A1A' }}>
+                <span style={{ color: '#EF4444', fontSize: '18px' }}>🔥</span>
+              </div>
+            </div>
+            <div style={{ ...s.statValue, color: '#EF4444' }}>{streak}</div>
+            <div style={s.statSub}>attempts</div>
+          </div>
         </div>
 
         {/* Training Modules */}
-        <h3 style={styles.sectionTitle}>Training Modules</h3>
-        <div style={{
-          ...styles.modulesGrid,
-          gridTemplateColumns: isMobile
-            ? '1fr'
-            : isTablet
-            ? 'repeat(2, 1fr)'
-            : 'repeat(3, 1fr)',
-        }}>
-          {/* Phishing */}
-          <div style={styles.moduleCard} onClick={() => navigate('/simulation')}>
-            <div style={styles.moduleCardTop}>
-              <span style={styles.moduleTag}>🎣 Phishing</span>
-              <span style={styles.moduleDifficulty}>Beginner</span>
-            </div>
-            <h4 style={styles.moduleName}>Email Phishing Simulation</h4>
-            <p style={styles.moduleSub}>
-              Learn to identify suspicious emails and phishing attempts
-            </p>
-            <div style={styles.moduleFooter}>
-              <span style={styles.moduleMeta}>⏱ 15 min</span>
-              <span style={styles.startBtn}>Start →</span>
-            </div>
-          </div>
+        <h2 style={s.sectionTitle}>Training Modules</h2>
+        <div style={s.modulesList}>
+          {modules.map((mod) => (
+            <div
+              key={mod.id}
+              style={{
+                ...s.moduleRow,
+                cursor: mod.unlocked ? 'pointer' : 'default',
+                opacity: mod.unlocked ? 1 : 0.6,
+                borderColor: mod.unlocked && window.location.pathname === mod.route ? mod.color : '#1E2D3D',
+              }}
+              onClick={() => mod.unlocked && navigate(mod.route)}
+              onMouseEnter={e => { if (mod.unlocked) e.currentTarget.style.borderColor = mod.color; }}
+              onMouseLeave={e => { if (mod.unlocked) e.currentTarget.style.borderColor = '#1E2D3D'; }}
+            >
+              {/* Icon */}
+              <div style={{
+                ...s.moduleIcon,
+                background: mod.unlocked ? mod.bg : '#111827',
+                border: `1px solid ${mod.unlocked ? mod.color + '44' : '#374151'}`,
+              }}>
+                {mod.unlocked
+                  ? <span style={{ fontSize: '22px', filter: `drop-shadow(0 0 6px ${mod.color})` }}>{mod.icon}</span>
+                  : <span style={{ fontSize: '20px', color: '#4B5563' }}>🔒</span>
+                }
+              </div>
 
-          {/* Chatbot */}
-          <div style={{ ...styles.moduleCard, opacity: 0.7 }}>
-            <div style={styles.moduleCardTop}>
-              <span style={{
-                ...styles.moduleTag,
-                background: '#ede9fe',
-                color: '#5b21b6',
-              }}>🤖 Chatbot</span>
-              <span style={styles.moduleDifficulty}>Intermediate</span>
-            </div>
-            <h4 style={styles.moduleName}>AI Social Engineer</h4>
-            <p style={styles.moduleSub}>
-              Practise responding to AI-driven manipulation attempts
-            </p>
-            <div style={styles.moduleFooter}>
-              <span style={styles.moduleMeta}>⏱ 20 min</span>
-              <span style={{ ...styles.startBtn, color: '#999' }}>
-                Coming soon
-              </span>
-            </div>
-          </div>
+              {/* Info */}
+              <div style={s.moduleInfo}>
+                <div style={s.moduleTitle}>{mod.title}</div>
+                <div style={s.moduleDesc}>
+                  {mod.unlocked ? mod.desc : 'Complete previous module to unlock'}
+                </div>
+                {mod.unlocked && (
+                  <div style={s.moduleTags}>
+                    <span style={{
+                      ...s.levelTag,
+                      background: levelColor[mod.level].bg,
+                      color: levelColor[mod.level].color,
+                      border: `1px solid ${levelColor[mod.level].color}44`,
+                    }}>
+                      {mod.level}
+                    </span>
+                    <span style={s.ptsTag}>{mod.pts} pts</span>
+                  </div>
+                )}
+              </div>
 
-          {/* Pretexting */}
-          <div style={{ ...styles.moduleCard, opacity: 0.7 }}>
-            <div style={styles.moduleCardTop}>
-              <span style={{
-                ...styles.moduleTag,
-                background: '#dcfce7',
-                color: '#166534',
-              }}>🎭 Pretexting</span>
-              <span style={styles.moduleDifficulty}>Intermediate</span>
+              {/* Arrow */}
+              {mod.unlocked && (
+                <div style={{ color: '#4B5563', fontSize: '18px', flexShrink: 0 }}>›</div>
+              )}
             </div>
-            <h4 style={styles.moduleName}>Pretexting Scenario</h4>
-            <p style={styles.moduleSub}>
-              Spot impersonation-based social engineering attacks
-            </p>
-            <div style={styles.moduleFooter}>
-              <span style={styles.moduleMeta}>⏱ 18 min</span>
-              <span style={{ ...styles.startBtn, color: '#999' }}>
-                Coming soon
-              </span>
-            </div>
-          </div>
+          ))}
         </div>
 
-        {/* Recent Results */}
+        {/* Recent activity */}
         {results.length > 0 && (
           <>
-            <h3 style={styles.sectionTitle}>Recent Results</h3>
-            <div style={styles.resultsTable}>
-              <div style={styles.tableHeader}>
-                <span>Module</span>
-                <span>Score</span>
-                <span>Result</span>
-                <span>Date</span>
-              </div>
+            <h2 style={{ ...s.sectionTitle, marginTop: '32px' }}>Recent Activity</h2>
+            <div style={s.activityCard}>
               {results.slice(0, 5).map((r, i) => (
                 <div key={i} style={{
-                  ...styles.tableRow,
-                  background: i % 2 === 0 ? '#fff' : '#f8fafc',
+                  ...s.activityRow,
+                  borderBottom: i < Math.min(results.length, 5) - 1 ? '1px solid #1E2D3D' : 'none',
                 }}>
-                  <span style={{ textTransform: 'capitalize', fontWeight: '500' }}>
-                    {r.moduleType}
-                  </span>
-                  <span style={{
-                    fontWeight: '600',
-                    color: r.score >= 60 ? '#166534' : '#991b1b',
+                  <div style={{
+                    ...s.activityDot,
+                    background: r.passed ? '#00C896' : '#EF4444',
+                    boxShadow: `0 0 8px ${r.passed ? '#00C89660' : '#EF444460'}`,
+                  }} />
+                  <div style={s.activityInfo}>
+                    <span style={s.activityModule}>
+                      {r.moduleType.charAt(0).toUpperCase() + r.moduleType.slice(1)} simulation
+                    </span>
+                    <span style={s.activityDate}>
+                      {new Date(r.completedAt).toLocaleDateString()}
+                    </span>
+                  </div>
+                  <div style={{
+                    ...s.activityScore,
+                    color: r.score >= 80 ? '#00C896' : r.score >= 60 ? '#F59E0B' : '#EF4444',
                   }}>
                     {r.score}%
-                  </span>
-                  <span style={{ color: r.passed ? '#166534' : '#991b1b' }}>
-                    {r.passed ? '✅ Passed' : '❌ Failed'}
-                  </span>
-                  <span style={{ color: '#888', fontSize: '12px' }}>
-                    {new Date(r.completedAt).toLocaleDateString()}
-                  </span>
+                  </div>
+                  <div style={{
+                    ...s.activityBadge,
+                    background: r.passed ? '#0D2E1F' : '#200808',
+                    color: r.passed ? '#00C896' : '#EF4444',
+                    border: `1px solid ${r.passed ? '#00C89644' : '#EF444444'}`,
+                  }}>
+                    {r.passed ? 'Passed' : 'Failed'}
+                  </div>
                 </div>
               ))}
             </div>
           </>
-        )}
-
-        {/* Empty state */}
-        {results.length === 0 && (
-          <div style={styles.emptyState}>
-            <span style={{ fontSize: '48px' }}>🎯</span>
-            <h3 style={{ color: '#1e3a5f', margin: '12px 0 8px' }}>
-              Start your first module!
-            </h3>
-            <p style={{ color: '#888', fontSize: '14px', marginBottom: '16px' }}>
-              Complete training modules to build your security awareness skills.
-            </p>
-            <button
-              style={styles.startFirstBtn}
-              onClick={() => navigate('/simulation')}
-            >
-              Start Phishing Simulation →
-            </button>
-          </div>
         )}
 
       </div>
@@ -287,272 +296,322 @@ export default function Dashboard({ setToken }) {
   );
 }
 
-const styles = {
+const s = {
   page: {
     display: 'flex',
     minHeight: '100vh',
-    background: '#f0f4f8',
-    flexDirection: 'row',
+    background: '#070D14',
+    color: '#E2E8F0',
+    fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
   },
+
+  // Sidebar
   sidebar: {
-    background: '#0c447c',
+    width: '260px',
+    background: '#0A1628',
+    borderRight: '1px solid #1E2D3D',
+    padding: '24px 0',
     display: 'flex',
     flexDirection: 'column',
-    gap: '4px',
+    position: 'fixed',
+    height: '100vh',
     zIndex: 100,
   },
-  logo: {
-    color: '#fff',
+  logoWrap: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '12px',
+    padding: '0 24px 32px',
+    borderBottom: '1px solid #1E2D3D',
+    marginBottom: '24px',
+  },
+  logoIcon: { fontSize: '28px' },
+  logoTitle: {
+    fontSize: '13px',
     fontWeight: '700',
+    color: '#E2E8F0',
+    letterSpacing: '2px',
+  },
+  logoSub: {
+    fontSize: '11px',
+    color: '#4B5563',
+    letterSpacing: '2px',
   },
   nav: {
     display: 'flex',
+    flexDirection: 'column',
+    gap: '4px',
+    padding: '0 12px',
     flex: 1,
-  },
-  navActive: {
-    padding: '10px 12px',
-    background: '#185fa5',
-    borderRadius: '8px',
-    color: '#fff',
-    fontSize: '13px',
-    fontWeight: '600',
-    cursor: 'pointer',
   },
   navItem: {
-    padding: '10px 12px',
-    color: '#b5d4f4',
+    display: 'flex',
+    alignItems: 'center',
+    gap: '12px',
+    padding: '12px 16px',
+    borderRadius: '10px',
+    cursor: 'pointer',
+    fontSize: '14px',
+    color: '#6B7280',
+    transition: 'all 0.2s',
+  },
+  navActive: {
+    background: '#0F2236',
+    color: '#00C896',
+    borderLeft: '3px solid #00C896',
+    paddingLeft: '13px',
+  },
+  navIcon: { fontSize: '16px', width: '20px', textAlign: 'center' },
+  userSection: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '12px',
+    padding: '16px 24px',
+    borderTop: '1px solid #1E2D3D',
+    marginTop: 'auto',
+  },
+  userAvatar: {
+    width: '36px',
+    height: '36px',
+    borderRadius: '50%',
+    background: 'linear-gradient(135deg, #00C896, #0088CC)',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
     fontSize: '13px',
-    cursor: 'pointer',
-    borderRadius: '8px',
-    transition: 'background 0.2s',
+    fontWeight: '700',
+    color: '#fff',
+    flexShrink: 0,
   },
-  logoutBtn: {
-    padding: '10px 12px',
-    color: '#b5d4f4',
+  userInfo: { flex: 1, overflow: 'hidden' },
+  userName: {
     fontSize: '13px',
-    cursor: 'pointer',
-    borderTop: '1px solid rgba(255,255,255,0.1)',
-    marginTop: '8px',
-    paddingTop: '16px',
+    fontWeight: '600',
+    color: '#E2E8F0',
+    whiteSpace: 'nowrap',
+    overflow: 'hidden',
+    textOverflow: 'ellipsis',
   },
-  logoutBtnMobile: {
-    padding: '8px 10px',
-    color: '#b5d4f4',
-    fontSize: '18px',
-    cursor: 'pointer',
+  userRole: {
+    fontSize: '11px',
+    color: '#4B5563',
+    textTransform: 'capitalize',
   },
+  signOut: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '10px',
+    padding: '12px 24px',
+    fontSize: '13px',
+    color: '#4B5563',
+    cursor: 'pointer',
+    borderTop: '1px solid #1E2D3D',
+  },
+
+  // Main
   main: {
+    marginLeft: '260px',
+    padding: '32px 40px',
     flex: 1,
+    maxWidth: 'calc(100vw - 260px)',
   },
   header: {
     display: 'flex',
     justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: '24px',
-    flexWrap: 'wrap',
-    gap: '12px',
+    alignItems: 'flex-start',
+    marginBottom: '32px',
   },
   welcome: {
+    fontSize: '32px',
     fontWeight: '700',
-    margin: '0 0 4px',
-    color: '#1e3a5f',
+    color: '#F1F5F9',
+    margin: '0 0 6px',
   },
   welcomeSub: {
-    fontSize: '13px',
-    color: '#888',
+    fontSize: '15px',
+    color: '#4B5563',
     margin: 0,
   },
-  avatar: {
-    width: '44px',
-    height: '44px',
-    background: '#185fa5',
-    borderRadius: '50%',
+  headerRight: {
+    display: 'flex',
+    gap: '10px',
+  },
+  notifBtn: {
+    width: '40px',
+    height: '40px',
+    background: '#0F1F30',
+    border: '1px solid #1E2D3D',
+    borderRadius: '10px',
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
-    color: '#fff',
-    fontWeight: '700',
-    fontSize: '15px',
-    flexShrink: 0,
-    boxShadow: '0 2px 8px rgba(24,95,165,0.3)',
+    cursor: 'pointer',
+    fontSize: '16px',
   },
-  statsGrid: {
+  settingsBtn: {
+    width: '40px',
+    height: '40px',
+    background: '#0F1F30',
+    border: '1px solid #1E2D3D',
+    borderRadius: '10px',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    cursor: 'pointer',
+    fontSize: '16px',
+  },
+
+  // Stats
+  statsRow: {
     display: 'grid',
-    gap: '12px',
-    marginBottom: '20px',
+    gridTemplateColumns: 'repeat(4, 1fr)',
+    gap: '16px',
+    marginBottom: '36px',
   },
   statCard: {
-    background: '#fff',
-    borderRadius: '12px',
-    padding: '16px 20px',
-    boxShadow: '0 1px 4px rgba(0,0,0,0.07)',
-    borderTop: '3px solid #185fa5',
+    borderRadius: '16px',
+    padding: '20px 24px',
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '8px',
+  },
+  statTop: {
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: '4px',
   },
   statLabel: {
     fontSize: '11px',
-    color: '#888',
-    margin: '0 0 8px',
-    textTransform: 'uppercase',
-    letterSpacing: '0.5px',
-    fontWeight: '600',
+    fontWeight: '700',
+    color: '#4B5563',
+    letterSpacing: '1px',
+  },
+  statIconBox: {
+    width: '36px',
+    height: '36px',
+    borderRadius: '10px',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   statValue: {
-    fontSize: '28px',
+    fontSize: '36px',
     fontWeight: '700',
-    margin: 0,
-    color: '#1e3a5f',
+    color: '#00C896',
     lineHeight: 1,
   },
-  progressCard: {
-    background: '#fff',
-    borderRadius: '12px',
-    padding: '16px 20px',
-    marginBottom: '28px',
-    boxShadow: '0 1px 4px rgba(0,0,0,0.07)',
-  },
-  progressHeader: {
-    display: 'flex',
-    justifyContent: 'space-between',
-    marginBottom: '10px',
-    flexWrap: 'wrap',
-    gap: '4px',
-  },
-  progressTitle: {
-    fontSize: '14px',
-    fontWeight: '600',
-    color: '#1e3a5f',
-  },
-  progressCount: {
-    fontSize: '13px',
-    color: '#888',
-  },
-  progressBar: {
-    background: '#e5e7eb',
-    borderRadius: '6px',
-    height: '10px',
-    overflow: 'hidden',
-  },
-  progressFill: {
-    background: 'linear-gradient(90deg, #185fa5, #3b9eff)',
-    height: '10px',
-    borderRadius: '6px',
-    transition: 'width 0.8s ease',
-  },
-  progressPercent: {
+  statSub: {
     fontSize: '12px',
-    color: '#888',
-    margin: '6px 0 0',
-    textAlign: 'right',
+    color: '#4B5563',
   },
+
+  // Modules
   sectionTitle: {
-    fontSize: '16px',
-    fontWeight: '700',
-    color: '#1e3a5f',
+    fontSize: '18px',
+    fontWeight: '600',
+    color: '#F1F5F9',
     margin: '0 0 16px',
   },
-  modulesGrid: {
-    display: 'grid',
-    gap: '16px',
-    marginBottom: '32px',
-  },
-  moduleCard: {
-    background: '#fff',
-    borderRadius: '14px',
-    padding: '20px',
-    boxShadow: '0 2px 8px rgba(0,0,0,0.08)',
-    cursor: 'pointer',
-    transition: 'transform 0.2s, box-shadow 0.2s',
-    border: '1px solid #f0f0f0',
-  },
-  moduleCardTop: {
+  modulesList: {
     display: 'flex',
-    justifyContent: 'space-between',
+    flexDirection: 'column',
+    gap: '12px',
+  },
+  moduleRow: {
+    display: 'flex',
     alignItems: 'center',
-    marginBottom: '10px',
+    gap: '20px',
+    background: '#0A1628',
+    border: '1px solid #1E2D3D',
+    borderRadius: '16px',
+    padding: '20px 24px',
+    transition: 'all 0.2s',
   },
-  moduleTag: {
-    fontSize: '11px',
-    background: '#dbeafe',
-    color: '#1d4ed8',
-    padding: '3px 10px',
-    borderRadius: '20px',
-    fontWeight: '600',
+  moduleIcon: {
+    width: '56px',
+    height: '56px',
+    borderRadius: '14px',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    flexShrink: 0,
   },
-  moduleDifficulty: {
-    fontSize: '11px',
-    color: '#888',
-    fontWeight: '500',
+  moduleInfo: {
+    flex: 1,
+    minWidth: 0,
   },
-  moduleName: {
+  moduleTitle: {
     fontSize: '15px',
-    fontWeight: '700',
-    margin: '0 0 6px',
-    color: '#1e3a5f',
+    fontWeight: '600',
+    color: '#F1F5F9',
+    margin: '0 0 4px',
   },
-  moduleSub: {
-    fontSize: '12px',
-    color: '#888',
-    margin: '0 0 14px',
+  moduleDesc: {
+    fontSize: '13px',
+    color: '#4B5563',
+    margin: '0 0 8px',
     lineHeight: 1.5,
   },
-  moduleFooter: {
+  moduleTags: {
     display: 'flex',
-    justifyContent: 'space-between',
+    gap: '8px',
     alignItems: 'center',
-    borderTop: '1px solid #f5f5f5',
-    paddingTop: '10px',
   },
-  moduleMeta: {
-    fontSize: '12px',
-    color: '#aaa',
-  },
-  startBtn: {
-    fontSize: '13px',
-    color: '#185fa5',
-    fontWeight: '700',
-  },
-  resultsTable: {
-    background: '#fff',
-    borderRadius: '12px',
-    overflow: 'hidden',
-    boxShadow: '0 1px 4px rgba(0,0,0,0.07)',
-    overflowX: 'auto',
-  },
-  tableHeader: {
-    display: 'grid',
-    gridTemplateColumns: '2fr 1fr 1fr 1fr',
-    padding: '12px 20px',
-    background: '#1e3a5f',
-    fontSize: '12px',
-    fontWeight: '700',
-    color: '#fff',
-    minWidth: '380px',
-    letterSpacing: '0.3px',
-  },
-  tableRow: {
-    display: 'grid',
-    gridTemplateColumns: '2fr 1fr 1fr 1fr',
-    padding: '13px 20px',
-    fontSize: '13px',
-    borderTop: '1px solid #f0f0f0',
-    color: '#333',
-    minWidth: '380px',
-  },
-  emptyState: {
-    background: '#fff',
-    borderRadius: '14px',
-    padding: '48px 24px',
-    textAlign: 'center',
-    boxShadow: '0 1px 4px rgba(0,0,0,0.07)',
-  },
-  startFirstBtn: {
-    background: '#1e3a5f',
-    color: '#fff',
-    border: 'none',
-    borderRadius: '8px',
-    padding: '12px 24px',
-    fontSize: '14px',
+  levelTag: {
+    fontSize: '11px',
     fontWeight: '600',
-    cursor: 'pointer',
+    padding: '3px 10px',
+    borderRadius: '20px',
+  },
+  ptsTag: {
+    fontSize: '12px',
+    color: '#4B5563',
+    fontWeight: '500',
+  },
+
+  // Activity
+  activityCard: {
+    background: '#0A1628',
+    border: '1px solid #1E2D3D',
+    borderRadius: '16px',
+    overflow: 'hidden',
+  },
+  activityRow: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '16px',
+    padding: '16px 24px',
+  },
+  activityDot: {
+    width: '10px',
+    height: '10px',
+    borderRadius: '50%',
+    flexShrink: 0,
+  },
+  activityInfo: {
+    flex: 1,
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '2px',
+  },
+  activityModule: {
+    fontSize: '14px',
+    fontWeight: '500',
+    color: '#E2E8F0',
+  },
+  activityDate: {
+    fontSize: '12px',
+    color: '#4B5563',
+  },
+  activityScore: {
+    fontSize: '16px',
+    fontWeight: '700',
+  },
+  activityBadge: {
+    fontSize: '12px',
+    fontWeight: '600',
+    padding: '4px 12px',
+    borderRadius: '20px',
   },
 };

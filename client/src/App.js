@@ -5,18 +5,30 @@ import Register from './pages/Register';
 import Dashboard from './pages/Dashboard';
 import Simulation from './pages/Simulation';
 import Admin from './pages/Admin';
+import Leaderboard from './pages/Leaderboard';
+import Reports from './pages/Reports';
+
+function PrivateRoute({ children }) {
+  const token = localStorage.getItem('token');
+  return token ? children : <Navigate to="/" replace />;
+}
+
+function PublicRoute({ children }) {
+  const token = localStorage.getItem('token');
+  return !token ? children : <Navigate to="/dashboard" replace />;
+}
 
 function App() {
-  const token = localStorage.getItem('token');
-
   return (
     <Router>
       <Routes>
-        <Route path="/" element={<Login />} />
-        <Route path="/register" element={<Register />} />
-        <Route path="/dashboard" element={token ? <Dashboard /> : <Navigate to="/" />} />
-        <Route path="/simulation" element={token ? <Simulation /> : <Navigate to="/" />} />
-        <Route path="/admin" element={token ? <Admin /> : <Navigate to="/" />} />
+        <Route path="/" element={<PublicRoute><Login /></PublicRoute>} />
+        <Route path="/register" element={<PublicRoute><Register /></PublicRoute>} />
+        <Route path="/dashboard" element={<PrivateRoute><Dashboard /></PrivateRoute>} />
+        <Route path="/simulation" element={<PrivateRoute><Simulation /></PrivateRoute>} />
+        <Route path="/admin" element={<PrivateRoute><Admin /></PrivateRoute>} />
+        <Route path="/leaderboard" element={<PrivateRoute><Leaderboard /></PrivateRoute>} />
+        <Route path="/reports" element={<PrivateRoute><Reports /></PrivateRoute>} />
       </Routes>
     </Router>
   );

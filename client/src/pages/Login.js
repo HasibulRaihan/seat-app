@@ -8,9 +8,7 @@ export default function Login() {
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
-  const handleChange = (e) => {
-    setForm({ ...form, [e.target.name]: e.target.value });
-  };
+  const handleChange = (e) => setForm({ ...form, [e.target.name]: e.target.value });
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -20,174 +18,231 @@ export default function Login() {
       const res = await loginUser(form);
       localStorage.setItem('token', res.data.token);
       localStorage.setItem('user', JSON.stringify(res.data.user));
-      if (res.data.user.role === 'admin') {
-        navigate('/admin');
-      } else {
-        navigate('/dashboard');
-      }
+      window.location.href = res.data.user.role === 'admin' ? '/admin' : '/dashboard';
     } catch (err) {
-      setError(err.response?.data?.message || 'Login failed');
+      setError(err.response?.data?.message || 'Invalid email or password');
+      setLoading(false);
     }
-    setLoading(false);
   };
 
   return (
-    <div style={styles.page}>
-      <div style={styles.card}>
-        <div style={styles.logoBox}>
-          <span style={styles.logoIcon}>🛡️</span>
-        </div>
-        <h2 style={styles.title}>SEAT Platform</h2>
-        <p style={styles.subtitle}>Social Engineering Awareness Training</p>
-
-        <div style={styles.tabs}>
-          <span style={styles.activeTab}>Log in</span>
-          <Link to="/register" style={styles.inactiveTab}>Register</Link>
-        </div>
-
-        {error && <div style={styles.error}>{error}</div>}
-
-        <form onSubmit={handleSubmit}>
-          <div style={styles.field}>
-            <label style={styles.label}>Email address</label>
-            <input
-              style={styles.input}
-              type="email"
-              name="email"
-              placeholder="name@organisation.com"
-              value={form.email}
-              onChange={handleChange}
-              required
-            />
+    <div style={s.page}>
+      <div style={s.left}>
+        <div style={s.brand}>
+          <span style={s.brandIcon}>🛡️</span>
+          <div>
+            <div style={s.brandName}>SECURITY TRAINING</div>
+            <div style={s.brandSub}>Cybersecurity Awareness Platform</div>
           </div>
-          <div style={styles.field}>
-            <label style={styles.label}>Password</label>
-            <input
-              style={styles.input}
-              type="password"
-              name="password"
-              placeholder="••••••••"
-              value={form.password}
-              onChange={handleChange}
-              required
-            />
-          </div>
-          <button style={styles.button} type="submit" disabled={loading}>
-            {loading ? 'Logging in...' : 'Log in to SEAT'}
-          </button>
-        </form>
-        <p style={styles.link}>
-          Don't have an account?{' '}
-          <Link to="/register" style={styles.linkText}>Register here</Link>
-        </p>
+        </div>
+        <div style={s.heroText}>
+          <h1 style={s.heroTitle}>Train. Detect.<br/>Stay Secure.</h1>
+          <p style={s.heroDesc}>
+            Interactive simulations to build your defence against
+            social engineering attacks.
+          </p>
+        </div>
+        <div style={s.features}>
+          {['Phishing Simulations', 'AI Chatbot Training', 'Real-time Leaderboard', 'Performance Reports'].map(f => (
+            <div key={f} style={s.featureItem}>
+              <span style={s.featureDot}></span>
+              <span style={s.featureText}>{f}</span>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <div style={s.right}>
+        <div style={s.card}>
+          <h2 style={s.cardTitle}>Welcome back</h2>
+          <p style={s.cardSub}>Sign in to your training account</p>
+
+          {error && <div style={s.error}>{error}</div>}
+
+          <form onSubmit={handleSubmit}>
+            <div style={s.field}>
+              <label style={s.label}>Email address</label>
+              <input
+                style={s.input}
+                type="email"
+                name="email"
+                placeholder="name@organisation.com"
+                value={form.email}
+                onChange={handleChange}
+                required
+              />
+            </div>
+            <div style={s.field}>
+              <label style={s.label}>Password</label>
+              <input
+                style={s.input}
+                type="password"
+                name="password"
+                placeholder="••••••••"
+                value={form.password}
+                onChange={handleChange}
+                required
+              />
+            </div>
+            <button style={s.btn} type="submit" disabled={loading}>
+              {loading ? 'Signing in...' : 'Sign In →'}
+            </button>
+          </form>
+
+          <p style={s.switchText}>
+            Don't have an account?{' '}
+            <Link to="/register" style={s.switchLink}>Create one</Link>
+          </p>
+        </div>
       </div>
     </div>
   );
 }
 
-const styles = {
+const s = {
   page: {
+    display: 'flex',
     minHeight: '100vh',
-    background: 'linear-gradient(135deg, #1e3a5f 0%, #185fa5 100%)',
+    background: '#070D14',
+    fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
+  },
+  left: {
+    flex: 1,
+    background: 'linear-gradient(160deg, #0A1628 0%, #070D14 60%)',
+    borderRight: '1px solid #1E2D3D',
+    padding: 'clamp(32px,5vw,64px)',
+    display: 'flex',
+    flexDirection: 'column',
+    justifyContent: 'space-between',
+  },
+  brand: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '12px',
+  },
+  brandIcon: { fontSize: '32px' },
+  brandName: {
+    fontSize: '13px',
+    fontWeight: '700',
+    color: '#E2E8F0',
+    letterSpacing: '2px',
+  },
+  brandSub: {
+    fontSize: '11px',
+    color: '#4B5563',
+    letterSpacing: '1px',
+  },
+  heroText: { flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center' },
+  heroTitle: {
+    fontSize: 'clamp(32px,4vw,52px)',
+    fontWeight: '800',
+    color: '#F1F5F9',
+    lineHeight: 1.2,
+    margin: '0 0 20px',
+  },
+  heroDesc: {
+    fontSize: '16px',
+    color: '#4B5563',
+    lineHeight: 1.7,
+    maxWidth: '400px',
+    margin: 0,
+  },
+  features: {
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '12px',
+  },
+  featureItem: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '12px',
+  },
+  featureDot: {
+    width: '8px',
+    height: '8px',
+    borderRadius: '50%',
+    background: '#00C896',
+    boxShadow: '0 0 8px #00C89680',
+    flexShrink: 0,
+  },
+  featureText: {
+    fontSize: '14px',
+    color: '#6B7280',
+  },
+  right: {
+    width: 'clamp(340px, 40%, 500px)',
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
-    padding: '16px',
+    padding: '40px 32px',
   },
   card: {
-    background: '#fff',
-    borderRadius: '16px',
-    padding: 'clamp(24px, 5vw, 40px)',
     width: '100%',
-    maxWidth: '420px',
-    boxShadow: '0 8px 32px rgba(0,0,0,0.18)',
+    maxWidth: '400px',
   },
-  logoBox: { textAlign: 'center', marginBottom: '12px' },
-  logoIcon: { fontSize: 'clamp(36px, 8vw, 52px)' },
-  title: {
-    textAlign: 'center',
-    fontSize: 'clamp(18px, 4vw, 24px)',
+  cardTitle: {
+    fontSize: '28px',
     fontWeight: '700',
-    margin: '0 0 4px',
-    color: '#1e3a5f',
+    color: '#F1F5F9',
+    margin: '0 0 8px',
   },
-  subtitle: {
-    textAlign: 'center',
-    fontSize: 'clamp(11px, 2.5vw, 13px)',
-    color: '#888',
-    margin: '0 0 24px',
-  },
-  tabs: {
-    display: 'flex',
-    borderRadius: '10px',
-    border: '1px solid #e0e0e0',
-    overflow: 'hidden',
-    marginBottom: '20px',
-  },
-  activeTab: {
-    flex: 1,
-    padding: 'clamp(8px, 2vw, 11px)',
-    textAlign: 'center',
-    background: '#1e3a5f',
-    color: '#fff',
-    fontWeight: '600',
-    fontSize: 'clamp(12px, 2.5vw, 14px)',
-    cursor: 'default',
-  },
-  inactiveTab: {
-    flex: 1,
-    padding: 'clamp(8px, 2vw, 11px)',
-    textAlign: 'center',
-    color: '#888',
-    fontSize: 'clamp(12px, 2.5vw, 14px)',
-    textDecoration: 'none',
-    background: '#f9f9f9',
+  cardSub: {
+    fontSize: '14px',
+    color: '#4B5563',
+    margin: '0 0 32px',
   },
   error: {
-    background: '#fee2e2',
-    color: '#991b1b',
-    padding: '10px 14px',
-    borderRadius: '8px',
-    marginBottom: '16px',
+    background: '#1F0A0A',
+    border: '1px solid #5C1A1A',
+    color: '#EF4444',
+    padding: '12px 16px',
+    borderRadius: '10px',
+    marginBottom: '20px',
     fontSize: '13px',
-    border: '1px solid #fca5a5',
   },
-  field: { marginBottom: '16px' },
+  field: { marginBottom: '20px' },
   label: {
     display: 'block',
-    fontSize: 'clamp(11px, 2.5vw, 13px)',
+    fontSize: '13px',
     fontWeight: '600',
-    color: '#444',
-    marginBottom: '6px',
+    color: '#9CA3AF',
+    marginBottom: '8px',
+    letterSpacing: '0.5px',
   },
   input: {
     width: '100%',
-    padding: 'clamp(9px, 2vw, 11px) 14px',
-    border: '1.5px solid #e0e0e0',
-    borderRadius: '8px',
-    fontSize: 'clamp(13px, 3vw, 15px)',
+    padding: '14px 16px',
+    background: '#0F1F30',
+    border: '1px solid #1E2D3D',
+    borderRadius: '10px',
+    fontSize: '15px',
+    color: '#F1F5F9',
     boxSizing: 'border-box',
     outline: 'none',
     transition: 'border-color 0.2s',
   },
-  button: {
+  btn: {
     width: '100%',
-    padding: 'clamp(11px, 2.5vw, 13px)',
-    background: '#1e3a5f',
+    padding: '14px',
+    background: 'linear-gradient(135deg, #00C896, #0088CC)',
     color: '#fff',
     border: 'none',
-    borderRadius: '8px',
-    fontSize: 'clamp(14px, 3vw, 16px)',
-    fontWeight: '600',
+    borderRadius: '10px',
+    fontSize: '16px',
+    fontWeight: '700',
     cursor: 'pointer',
-    marginTop: '4px',
-    transition: 'background 0.2s',
+    marginTop: '8px',
+    letterSpacing: '0.5px',
   },
-  link: {
+  switchText: {
     textAlign: 'center',
-    marginTop: '18px',
-    fontSize: 'clamp(11px, 2.5vw, 13px)',
-    color: '#888',
+    marginTop: '24px',
+    fontSize: '14px',
+    color: '#4B5563',
   },
-  linkText: { color: '#185fa5', fontWeight: '600', textDecoration: 'none' },
+  switchLink: {
+    color: '#00C896',
+    fontWeight: '600',
+    textDecoration: 'none',
+  },
 };
