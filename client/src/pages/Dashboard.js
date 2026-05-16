@@ -21,6 +21,7 @@ export default function Dashboard() {
     ? Math.round(results.reduce((a, b) => a + b.score, 0) / results.length)
     : 0;
   const streak = results.filter(r => r.passed).length;
+  const isMobile = window.innerWidth <= 768;
 
   const modules = [
     {
@@ -74,124 +75,136 @@ export default function Dashboard() {
   ];
 
   const levelColor = {
-    beginner: { bg: '#0D3321', color: '#00C896', label: 'beginner' },
-    intermediate: { bg: '#1F1040', color: '#8B5CF6', label: 'intermediate' },
-    advanced: { bg: '#2D0D0D', color: '#EF4444', label: 'advanced' },
+    beginner:     { bg: '#0D3321', color: '#00C896' },
+    intermediate: { bg: '#1F1040', color: '#8B5CF6' },
+    advanced:     { bg: '#2D0D0D', color: '#EF4444' },
   };
 
   return (
     <div style={s.page}>
 
-      {/* ── SIDEBAR ── */}
-      <div style={s.sidebar}>
-        <div style={s.logoWrap}>
-          <div style={s.logoIcon}>🛡️</div>
-          <div>
-            <div style={s.logoTitle}>SECURITY</div>
-            <div style={s.logoSub}>TRAINING</div>
-          </div>
-        </div>
-
-        <nav style={s.nav}>
-          {[
-            { icon: '▦', label: 'Dashboard', path: '/dashboard' },
-            { icon: '◎', label: 'Simulations', path: '/simulation' },
-            { icon: '⬡', label: 'Leaderboard', path: '/leaderboard' },
-            { icon: '▥', label: 'Reports', path: '/reports' },
-          ].map((item) => (
-            <div
-              key={item.path}
-              style={{
-                ...s.navItem,
-                ...(window.location.pathname === item.path ? s.navActive : {}),
-              }}
-              onClick={() => navigate(item.path)}
-            >
-              <span style={s.navIcon}>{item.icon}</span>
-              <span>{item.label}</span>
+      {/* ── DESKTOP SIDEBAR ── */}
+      {!isMobile && (
+        <div style={s.sidebar}>
+          <div style={s.logoWrap}>
+            <div style={s.logoIcon}>🛡️</div>
+            <div>
+              <div style={s.logoTitle}>SECURITY</div>
+              <div style={s.logoSub}>TRAINING</div>
             </div>
-          ))}
-        </nav>
-
-        <div style={s.userSection}>
-          <div style={s.userAvatar}>
-            {user.firstName?.[0]}{user.lastName?.[0]}
           </div>
-          <div style={s.userInfo}>
-            <div style={s.userName}>{user.firstName} {user.lastName}</div>
-            <div style={s.userRole}>{user.role || 'Learner'}</div>
+
+          <nav style={s.nav}>
+            {[
+              { icon: '▦', label: 'Dashboard',   path: '/dashboard'   },
+              { icon: '◎', label: 'Simulations', path: '/simulation'  },
+              { icon: '⬡', label: 'Leaderboard', path: '/leaderboard' },
+              { icon: '▥', label: 'Reports',     path: '/reports'     },
+            ].map((item) => (
+              <div
+                key={item.path}
+                style={{
+                  ...s.navItem,
+                  ...(window.location.pathname === item.path ? s.navActive : {}),
+                }}
+                onClick={() => navigate(item.path)}
+              >
+                <span style={s.navIcon}>{item.icon}</span>
+                <span>{item.label}</span>
+              </div>
+            ))}
+          </nav>
+
+          <div style={s.userSection}>
+            <div style={s.userAvatar}>
+              {user.firstName?.[0]}{user.lastName?.[0]}
+            </div>
+            <div style={s.userInfo}>
+              <div style={s.userName}>{user.firstName} {user.lastName}</div>
+              <div style={s.userRole}>{user.role || 'Learner'}</div>
+            </div>
+          </div>
+
+          <div style={s.signOut} onClick={logout}>
+            <span>↪</span>
+            <span>Sign Out</span>
           </div>
         </div>
+      )}
 
-        <div style={s.signOut} onClick={logout}>
-          <span>↪</span>
-          <span>Sign Out</span>
+      {/* ── MOBILE TOP NAVBAR ── */}
+      {isMobile && (
+        <div style={s.mobileNav}>
+          <div style={s.mobileNavBrand}>
+            <span style={{ fontSize: '22px' }}>🛡️</span>
+            <span style={s.mobileNavTitle}>SEAT</span>
+          </div>
+          <div style={s.mobileNavLinks}>
+            <div style={s.mobileNavItem} onClick={() => navigate('/dashboard')}>📊</div>
+            <div style={s.mobileNavItem} onClick={() => navigate('/simulation')}>🎯</div>
+            <div style={s.mobileNavItem} onClick={() => navigate('/leaderboard')}>🏆</div>
+            <div style={s.mobileNavItem} onClick={() => navigate('/reports')}>📈</div>
+            <div style={s.mobileNavItem} onClick={logout}>🚪</div>
+          </div>
         </div>
-      </div>
+      )}
 
-      {/* ── MAIN ── */}
-      <div style={s.main}>
+      {/* ── MAIN CONTENT ── */}
+      <div style={{
+        ...s.main,
+        marginLeft:  isMobile ? '0'    : '260px',
+        padding:     isMobile ? '16px' : '32px 40px',
+        marginTop:   isMobile ? '60px' : '0',
+      }}>
 
         {/* Header */}
         <div style={s.header}>
           <div>
-            <h1 style={s.welcome}>Welcome back</h1>
+            <h1 style={{ ...s.welcome, fontSize: isMobile ? '22px' : '32px' }}>
+              Welcome back
+            </h1>
             <p style={s.welcomeSub}>Continue your cybersecurity training journey.</p>
           </div>
-          <div style={s.headerRight}>
-            <div style={s.notifBtn}>🔔</div>
-            <div style={s.settingsBtn}>⚙</div>
-          </div>
+          {!isMobile && (
+            <div style={s.headerRight}>
+              <div style={s.iconBtn}>🔔</div>
+              <div style={s.iconBtn}>⚙</div>
+            </div>
+          )}
         </div>
 
-        {/* Stats row */}
-        <div style={s.statsRow}>
-          <div style={{ ...s.statCard, background: 'linear-gradient(135deg, #0A2E1F 0%, #0D3D28 100%)', border: '1px solid #1A5C3A' }}>
-            <div style={s.statTop}>
-              <span style={s.statLabel}>MODULES DONE</span>
-              <div style={{ ...s.statIconBox, background: '#0D3D28', border: '1px solid #1A5C3A' }}>
-                <span style={{ color: '#00C896', fontSize: '18px' }}>🛡</span>
+        {/* ── STATS ── */}
+        <div style={{
+          ...s.statsRow,
+          gridTemplateColumns: isMobile ? 'repeat(2,1fr)' : 'repeat(4,1fr)',
+          gap: isMobile ? '10px' : '16px',
+        }}>
+          {[
+            { label:'MODULES DONE', value: completedModules, sub:`of ${modules.length}`,  icon:'🛡',  color:'#00C896', grad:'#0A2E1F,#0D3D28', border:'#1A5C3A' },
+            { label:'AVG SCORE',    value:`${avgScore}%`,    sub:'across attempts',         icon:'◎',   color:'#8B5CF6', grad:'#1A1040,#220F55', border:'#3B1F8C' },
+            { label:'TOTAL POINTS', value: user.totalPoints||0, sub:'points earned',        icon:'🏆',  color:'#F59E0B', grad:'#1F1600,#2A1E00', border:'#5C3D00' },
+            { label:'STREAK',       value: streak,           sub:'attempts',               icon:'🔥',  color:'#EF4444', grad:'#200808,#2D0A0A', border:'#5C1A1A' },
+          ].map((st, i) => (
+            <div key={i} style={{
+              ...s.statCard,
+              background: `linear-gradient(135deg,#${st.grad.split(',')[0]} 0%,#${st.grad.split(',')[1]} 100%)`,
+              border: `1px solid ${st.border}`,
+            }}>
+              <div style={s.statTop}>
+                <span style={s.statLabel}>{st.label}</span>
+                <div style={{ ...s.statIconBox }}>
+                  <span style={{ fontSize: '16px' }}>{st.icon}</span>
+                </div>
               </div>
-            </div>
-            <div style={s.statValue}>{completedModules}</div>
-            <div style={s.statSub}>of {modules.length}</div>
-          </div>
-
-          <div style={{ ...s.statCard, background: 'linear-gradient(135deg, #1A1040 0%, #220F55 100%)', border: '1px solid #3B1F8C' }}>
-            <div style={s.statTop}>
-              <span style={s.statLabel}>AVG SCORE</span>
-              <div style={{ ...s.statIconBox, background: '#220F55', border: '1px solid #3B1F8C' }}>
-                <span style={{ color: '#8B5CF6', fontSize: '18px' }}>◎</span>
+              <div style={{ ...s.statValue, color: st.color, fontSize: isMobile ? '28px' : '36px' }}>
+                {st.value}
               </div>
+              <div style={s.statSub}>{st.sub}</div>
             </div>
-            <div style={{ ...s.statValue, color: '#8B5CF6' }}>{avgScore}%</div>
-            <div style={s.statSub}>across attempts</div>
-          </div>
-
-          <div style={{ ...s.statCard, background: 'linear-gradient(135deg, #1F1600 0%, #2A1E00 100%)', border: '1px solid #5C3D00' }}>
-            <div style={s.statTop}>
-              <span style={s.statLabel}>TOTAL POINTS</span>
-              <div style={{ ...s.statIconBox, background: '#2A1E00', border: '1px solid #5C3D00' }}>
-                <span style={{ color: '#F59E0B', fontSize: '18px' }}>🏆</span>
-              </div>
-            </div>
-            <div style={{ ...s.statValue, color: '#F59E0B' }}>{user.totalPoints || 0}</div>
-            <div style={s.statSub}>points earned</div>
-          </div>
-
-          <div style={{ ...s.statCard, background: 'linear-gradient(135deg, #200808 0%, #2D0A0A 100%)', border: '1px solid #5C1A1A' }}>
-            <div style={s.statTop}>
-              <span style={s.statLabel}>STREAK</span>
-              <div style={{ ...s.statIconBox, background: '#2D0A0A', border: '1px solid #5C1A1A' }}>
-                <span style={{ color: '#EF4444', fontSize: '18px' }}>🔥</span>
-              </div>
-            </div>
-            <div style={{ ...s.statValue, color: '#EF4444' }}>{streak}</div>
-            <div style={s.statSub}>attempts</div>
-          </div>
+          ))}
         </div>
 
-        {/* Training Modules */}
+        {/* ── TRAINING MODULES ── */}
         <h2 style={s.sectionTitle}>Training Modules</h2>
         <div style={s.modulesList}>
           {modules.map((mod) => (
@@ -199,30 +212,31 @@ export default function Dashboard() {
               key={mod.id}
               style={{
                 ...s.moduleRow,
-                cursor: mod.unlocked ? 'pointer' : 'default',
+                cursor:  mod.unlocked ? 'pointer' : 'default',
                 opacity: mod.unlocked ? 1 : 0.6,
-                borderColor: mod.unlocked && window.location.pathname === mod.route ? mod.color : '#1E2D3D',
               }}
               onClick={() => mod.unlocked && navigate(mod.route)}
-              onMouseEnter={e => { if (mod.unlocked) e.currentTarget.style.borderColor = mod.color; }}
-              onMouseLeave={e => { if (mod.unlocked) e.currentTarget.style.borderColor = '#1E2D3D'; }}
+              onMouseEnter={e => { if (mod.unlocked && !isMobile) e.currentTarget.style.borderColor = mod.color; }}
+              onMouseLeave={e => { if (mod.unlocked && !isMobile) e.currentTarget.style.borderColor = '#1E2D3D'; }}
             >
-              {/* Icon */}
               <div style={{
                 ...s.moduleIcon,
-                background: mod.unlocked ? mod.bg : '#111827',
-                border: `1px solid ${mod.unlocked ? mod.color + '44' : '#374151'}`,
+                width:      isMobile ? '44px' : '56px',
+                height:     isMobile ? '44px' : '56px',
+                background: mod.unlocked ? mod.bg      : '#111827',
+                border:     `1px solid ${mod.unlocked ? mod.color+'44' : '#374151'}`,
               }}>
                 {mod.unlocked
-                  ? <span style={{ fontSize: '22px', filter: `drop-shadow(0 0 6px ${mod.color})` }}>{mod.icon}</span>
-                  : <span style={{ fontSize: '20px', color: '#4B5563' }}>🔒</span>
+                  ? <span style={{ fontSize: isMobile ? '18px' : '22px', filter:`drop-shadow(0 0 6px ${mod.color})` }}>{mod.icon}</span>
+                  : <span style={{ fontSize: '18px', color:'#4B5563' }}>🔒</span>
                 }
               </div>
 
-              {/* Info */}
               <div style={s.moduleInfo}>
-                <div style={s.moduleTitle}>{mod.title}</div>
-                <div style={s.moduleDesc}>
+                <div style={{ ...s.moduleTitle, fontSize: isMobile ? '14px' : '15px' }}>
+                  {mod.title}
+                </div>
+                <div style={{ ...s.moduleDesc, fontSize: isMobile ? '12px' : '13px' }}>
                   {mod.unlocked ? mod.desc : 'Complete previous module to unlock'}
                 </div>
                 {mod.unlocked && (
@@ -230,8 +244,8 @@ export default function Dashboard() {
                     <span style={{
                       ...s.levelTag,
                       background: levelColor[mod.level].bg,
-                      color: levelColor[mod.level].color,
-                      border: `1px solid ${levelColor[mod.level].color}44`,
+                      color:      levelColor[mod.level].color,
+                      border:     `1px solid ${levelColor[mod.level].color}44`,
                     }}>
                       {mod.level}
                     </span>
@@ -240,32 +254,31 @@ export default function Dashboard() {
                 )}
               </div>
 
-              {/* Arrow */}
               {mod.unlocked && (
-                <div style={{ color: '#4B5563', fontSize: '18px', flexShrink: 0 }}>›</div>
+                <div style={{ color:'#4B5563', fontSize:'22px', flexShrink:0 }}>›</div>
               )}
             </div>
           ))}
         </div>
 
-        {/* Recent activity */}
+        {/* ── RECENT ACTIVITY ── */}
         {results.length > 0 && (
           <>
-            <h2 style={{ ...s.sectionTitle, marginTop: '32px' }}>Recent Activity</h2>
+            <h2 style={{ ...s.sectionTitle, marginTop:'32px' }}>Recent Activity</h2>
             <div style={s.activityCard}>
-              {results.slice(0, 5).map((r, i) => (
+              {results.slice(0,5).map((r,i) => (
                 <div key={i} style={{
                   ...s.activityRow,
-                  borderBottom: i < Math.min(results.length, 5) - 1 ? '1px solid #1E2D3D' : 'none',
+                  borderBottom: i < Math.min(results.length,5)-1 ? '1px solid #1E2D3D' : 'none',
                 }}>
                   <div style={{
                     ...s.activityDot,
-                    background: r.passed ? '#00C896' : '#EF4444',
-                    boxShadow: `0 0 8px ${r.passed ? '#00C89660' : '#EF444460'}`,
-                  }} />
+                    background:  r.passed ? '#00C896' : '#EF4444',
+                    boxShadow:  `0 0 8px ${r.passed ? '#00C89660' : '#EF444460'}`,
+                  }}/>
                   <div style={s.activityInfo}>
                     <span style={s.activityModule}>
-                      {r.moduleType.charAt(0).toUpperCase() + r.moduleType.slice(1)} simulation
+                      {r.moduleType.charAt(0).toUpperCase()+r.moduleType.slice(1)} simulation
                     </span>
                     <span style={s.activityDate}>
                       {new Date(r.completedAt).toLocaleDateString()}
@@ -273,15 +286,16 @@ export default function Dashboard() {
                   </div>
                   <div style={{
                     ...s.activityScore,
-                    color: r.score >= 80 ? '#00C896' : r.score >= 60 ? '#F59E0B' : '#EF4444',
+                    color: r.score>=80 ? '#00C896' : r.score>=60 ? '#F59E0B' : '#EF4444',
+                    fontSize: isMobile ? '14px' : '16px',
                   }}>
                     {r.score}%
                   </div>
                   <div style={{
                     ...s.activityBadge,
                     background: r.passed ? '#0D2E1F' : '#200808',
-                    color: r.passed ? '#00C896' : '#EF4444',
-                    border: `1px solid ${r.passed ? '#00C89644' : '#EF444444'}`,
+                    color:      r.passed ? '#00C896' : '#EF4444',
+                    border:    `1px solid ${r.passed ? '#00C89644' : '#EF444444'}`,
                   }}>
                     {r.passed ? 'Passed' : 'Failed'}
                   </div>
@@ -291,11 +305,26 @@ export default function Dashboard() {
           </>
         )}
 
+        {/* ── EMPTY STATE ── */}
+        {results.length === 0 && (
+          <div style={s.emptyState}>
+            <div style={s.emptyIcon}>🎯</div>
+            <h3 style={s.emptyTitle}>Start your first module!</h3>
+            <p style={s.emptyDesc}>
+              Complete training modules to build your security awareness skills and climb the leaderboard.
+            </p>
+            <button style={s.emptyBtn} onClick={() => navigate('/simulation')}>
+              Start Email Phishing Basics →
+            </button>
+          </div>
+        )}
+
       </div>
     </div>
   );
 }
 
+// ── STYLES ────────────────────────────────────────────────────────
 const s = {
   page: {
     display: 'flex',
@@ -305,7 +334,7 @@ const s = {
     fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
   },
 
-  // Sidebar
+  // Desktop sidebar
   sidebar: {
     width: '260px',
     background: '#0A1628',
@@ -316,27 +345,19 @@ const s = {
     position: 'fixed',
     height: '100vh',
     zIndex: 100,
+    overflowY: 'auto',
   },
   logoWrap: {
     display: 'flex',
     alignItems: 'center',
     gap: '12px',
-    padding: '0 24px 32px',
+    padding: '0 24px 28px',
     borderBottom: '1px solid #1E2D3D',
-    marginBottom: '24px',
+    marginBottom: '20px',
   },
-  logoIcon: { fontSize: '28px' },
-  logoTitle: {
-    fontSize: '13px',
-    fontWeight: '700',
-    color: '#E2E8F0',
-    letterSpacing: '2px',
-  },
-  logoSub: {
-    fontSize: '11px',
-    color: '#4B5563',
-    letterSpacing: '2px',
-  },
+  logoIcon:  { fontSize: '28px' },
+  logoTitle: { fontSize: '13px', fontWeight: '700', color: '#E2E8F0', letterSpacing: '2px' },
+  logoSub:   { fontSize: '11px', color: '#4B5563', letterSpacing: '2px' },
   nav: {
     display: 'flex',
     flexDirection: 'column',
@@ -348,7 +369,7 @@ const s = {
     display: 'flex',
     alignItems: 'center',
     gap: '12px',
-    padding: '12px 16px',
+    padding: '11px 16px',
     borderRadius: '10px',
     cursor: 'pointer',
     fontSize: '14px',
@@ -374,7 +395,7 @@ const s = {
     width: '36px',
     height: '36px',
     borderRadius: '50%',
-    background: 'linear-gradient(135deg, #00C896, #0088CC)',
+    background: 'linear-gradient(135deg,#00C896,#0088CC)',
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
@@ -383,20 +404,9 @@ const s = {
     color: '#fff',
     flexShrink: 0,
   },
-  userInfo: { flex: 1, overflow: 'hidden' },
-  userName: {
-    fontSize: '13px',
-    fontWeight: '600',
-    color: '#E2E8F0',
-    whiteSpace: 'nowrap',
-    overflow: 'hidden',
-    textOverflow: 'ellipsis',
-  },
-  userRole: {
-    fontSize: '11px',
-    color: '#4B5563',
-    textTransform: 'capitalize',
-  },
+  userInfo:  { flex: 1, overflow: 'hidden' },
+  userName:  { fontSize: '13px', fontWeight: '600', color: '#E2E8F0', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' },
+  userRole:  { fontSize: '11px', color: '#4B5563', textTransform: 'capitalize' },
   signOut: {
     display: 'flex',
     alignItems: 'center',
@@ -408,47 +418,46 @@ const s = {
     borderTop: '1px solid #1E2D3D',
   },
 
-  // Main
-  main: {
-    marginLeft: '260px',
-    padding: '32px 40px',
-    flex: 1,
-    maxWidth: 'calc(100vw - 260px)',
+  // Mobile navbar
+  mobileNav: {
+    position: 'fixed',
+    top: 0, left: 0, right: 0,
+    height: '56px',
+    background: '#0A1628',
+    borderBottom: '1px solid #1E2D3D',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    padding: '0 16px',
+    zIndex: 200,
   },
+  mobileNavBrand: { display: 'flex', alignItems: 'center', gap: '8px' },
+  mobileNavTitle: { fontSize: '14px', fontWeight: '700', color: '#E2E8F0', letterSpacing: '2px' },
+  mobileNavLinks: { display: 'flex', gap: '4px' },
+  mobileNavItem: {
+    width: '36px',
+    height: '36px',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderRadius: '8px',
+    cursor: 'pointer',
+    fontSize: '16px',
+    background: '#0F1F30',
+  },
+
+  // Main content
+  main: { flex: 1 },
   header: {
     display: 'flex',
     justifyContent: 'space-between',
     alignItems: 'flex-start',
-    marginBottom: '32px',
+    marginBottom: '28px',
   },
-  welcome: {
-    fontSize: '32px',
-    fontWeight: '700',
-    color: '#F1F5F9',
-    margin: '0 0 6px',
-  },
-  welcomeSub: {
-    fontSize: '15px',
-    color: '#4B5563',
-    margin: 0,
-  },
-  headerRight: {
-    display: 'flex',
-    gap: '10px',
-  },
-  notifBtn: {
-    width: '40px',
-    height: '40px',
-    background: '#0F1F30',
-    border: '1px solid #1E2D3D',
-    borderRadius: '10px',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    cursor: 'pointer',
-    fontSize: '16px',
-  },
-  settingsBtn: {
+  welcome:    { fontWeight: '700', color: '#F1F5F9', margin: '0 0 6px' },
+  welcomeSub: { fontSize: '14px', color: '#4B5563', margin: 0 },
+  headerRight: { display: 'flex', gap: '10px' },
+  iconBtn: {
     width: '40px',
     height: '40px',
     background: '#0F1F30',
@@ -464,16 +473,14 @@ const s = {
   // Stats
   statsRow: {
     display: 'grid',
-    gridTemplateColumns: 'repeat(4, 1fr)',
-    gap: '16px',
-    marginBottom: '36px',
+    marginBottom: '32px',
   },
   statCard: {
     borderRadius: '16px',
-    padding: '20px 24px',
+    padding: '18px 20px',
     display: 'flex',
     flexDirection: 'column',
-    gap: '8px',
+    gap: '6px',
   },
   statTop: {
     display: 'flex',
@@ -481,137 +488,97 @@ const s = {
     alignItems: 'center',
     marginBottom: '4px',
   },
-  statLabel: {
-    fontSize: '11px',
-    fontWeight: '700',
-    color: '#4B5563',
-    letterSpacing: '1px',
-  },
+  statLabel: { fontSize: '10px', fontWeight: '700', color: '#4B5563', letterSpacing: '1px' },
   statIconBox: {
-    width: '36px',
-    height: '36px',
-    borderRadius: '10px',
+    width: '32px',
+    height: '32px',
+    borderRadius: '8px',
+    background: 'rgba(255,255,255,0.05)',
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
   },
-  statValue: {
-    fontSize: '36px',
-    fontWeight: '700',
-    color: '#00C896',
-    lineHeight: 1,
-  },
-  statSub: {
-    fontSize: '12px',
-    color: '#4B5563',
-  },
+  statValue: { fontWeight: '700', color: '#00C896', lineHeight: 1 },
+  statSub:   { fontSize: '11px', color: '#4B5563' },
 
   // Modules
-  sectionTitle: {
-    fontSize: '18px',
-    fontWeight: '600',
-    color: '#F1F5F9',
-    margin: '0 0 16px',
-  },
-  modulesList: {
-    display: 'flex',
-    flexDirection: 'column',
-    gap: '12px',
-  },
+  sectionTitle: { fontSize: '18px', fontWeight: '600', color: '#F1F5F9', margin: '0 0 14px' },
+  modulesList:  { display: 'flex', flexDirection: 'column', gap: '10px' },
   moduleRow: {
     display: 'flex',
     alignItems: 'center',
-    gap: '20px',
+    gap: '16px',
     background: '#0A1628',
     border: '1px solid #1E2D3D',
-    borderRadius: '16px',
-    padding: '20px 24px',
-    transition: 'all 0.2s',
+    borderRadius: '14px',
+    padding: '16px 20px',
+    transition: 'border-color 0.2s',
   },
   moduleIcon: {
-    width: '56px',
-    height: '56px',
-    borderRadius: '14px',
+    borderRadius: '12px',
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
     flexShrink: 0,
   },
-  moduleInfo: {
-    flex: 1,
-    minWidth: 0,
-  },
-  moduleTitle: {
-    fontSize: '15px',
-    fontWeight: '600',
-    color: '#F1F5F9',
-    margin: '0 0 4px',
-  },
-  moduleDesc: {
-    fontSize: '13px',
-    color: '#4B5563',
-    margin: '0 0 8px',
-    lineHeight: 1.5,
-  },
-  moduleTags: {
-    display: 'flex',
-    gap: '8px',
-    alignItems: 'center',
-  },
+  moduleInfo:  { flex: 1, minWidth: 0 },
+  moduleTitle: { fontWeight: '600', color: '#F1F5F9', margin: '0 0 4px' },
+  moduleDesc:  { color: '#4B5563', margin: '0 0 8px', lineHeight: 1.5 },
+  moduleTags:  { display: 'flex', gap: '8px', alignItems: 'center' },
   levelTag: {
     fontSize: '11px',
     fontWeight: '600',
     padding: '3px 10px',
     borderRadius: '20px',
   },
-  ptsTag: {
-    fontSize: '12px',
-    color: '#4B5563',
-    fontWeight: '500',
-  },
+  ptsTag: { fontSize: '12px', color: '#4B5563', fontWeight: '500' },
 
   // Activity
   activityCard: {
     background: '#0A1628',
     border: '1px solid #1E2D3D',
-    borderRadius: '16px',
+    borderRadius: '14px',
     overflow: 'hidden',
   },
   activityRow: {
     display: 'flex',
     alignItems: 'center',
-    gap: '16px',
-    padding: '16px 24px',
+    gap: '14px',
+    padding: '14px 20px',
   },
-  activityDot: {
-    width: '10px',
-    height: '10px',
-    borderRadius: '50%',
-    flexShrink: 0,
-  },
-  activityInfo: {
-    flex: 1,
-    display: 'flex',
-    flexDirection: 'column',
-    gap: '2px',
-  },
-  activityModule: {
-    fontSize: '14px',
-    fontWeight: '500',
-    color: '#E2E8F0',
-  },
-  activityDate: {
-    fontSize: '12px',
-    color: '#4B5563',
-  },
-  activityScore: {
-    fontSize: '16px',
-    fontWeight: '700',
-  },
+  activityDot:    { width: '10px', height: '10px', borderRadius: '50%', flexShrink: 0 },
+  activityInfo:   { flex: 1, display: 'flex', flexDirection: 'column', gap: '2px' },
+  activityModule: { fontSize: '14px', fontWeight: '500', color: '#E2E8F0' },
+  activityDate:   { fontSize: '12px', color: '#4B5563' },
+  activityScore:  { fontWeight: '700' },
   activityBadge: {
     fontSize: '12px',
     fontWeight: '600',
     padding: '4px 12px',
     borderRadius: '20px',
+    flexShrink: 0,
+  },
+
+  // Empty state
+  emptyState: {
+    marginTop: '32px',
+    background: '#0A1628',
+    border: '1px solid #1E2D3D',
+    borderRadius: '16px',
+    padding: '48px 24px',
+    textAlign: 'center',
+  },
+  emptyIcon:  { fontSize: '48px', marginBottom: '16px' },
+  emptyTitle: { fontSize: '20px', fontWeight: '600', color: '#F1F5F9', margin: '0 0 10px' },
+  emptyDesc:  { fontSize: '14px', color: '#4B5563', lineHeight: 1.7, margin: '0 0 24px', maxWidth: '400px', marginLeft: 'auto', marginRight: 'auto' },
+  emptyBtn: {
+    background: 'linear-gradient(135deg,#00C896,#0088CC)',
+    color: '#fff',
+    border: 'none',
+    borderRadius: '10px',
+    padding: '12px 24px',
+    fontSize: '14px',
+    fontWeight: '700',
+    cursor: 'pointer',
   },
 };
